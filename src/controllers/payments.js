@@ -99,7 +99,7 @@ function cancelSubscription(user, data){
   var du = user.purchased.plan.dateUpdated, now = moment();
   user.purchased.plan.dateTerminated =
     moment( now.format('MM') + '/' + moment(du).format('DD') + '/' + now.format('YYYY') )
-    .add('month',1)
+    .add(1, 'month')
     .toDate();
   ga.event('unsubscribe', 'Stripe').send();
 }
