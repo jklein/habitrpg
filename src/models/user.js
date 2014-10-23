@@ -10,6 +10,7 @@ var shared = require('habitrpg-shared');
 var _ = require('lodash');
 var TaskSchemas = require('./task');
 var Challenge = require('./challenge').model;
+var moment = require('moment');
 
 // User Schema
 // -----------
@@ -267,6 +268,7 @@ var UserSchema = new Schema({
     stickyHeader: {type: Boolean, 'default': true},
     disableClasses: {type: Boolean, 'default': false},
     newTaskEdit: {type: Boolean, 'default': false},
+    dailyDueDefaultView: {type: Boolean, 'default': false},
     tagsCollapsed: {type: Boolean, 'default': false},
     advancedCollapsed: {type: Boolean, 'default': false},
     toolbarCollapsed: {type:Boolean, 'default':false},
@@ -408,6 +410,10 @@ UserSchema.pre('save', function(next) {
   if (petCount >= 90 || this.achievements.beastMasterCount > 0) {
     this.achievements.beastMaster = true
   }
+
+  // TODO remove this after 11/01
+  if (!this.items.pets['JackOLantern-Base'] && moment().isBefore('2014-11-01'))
+    this.items.pets['JackOLantern-Base'] = 5;
 
   //our own version incrementer
   if (_.isNaN(this._v) || !_.isNumber(this._v)) this._v = 0;

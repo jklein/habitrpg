@@ -97,7 +97,7 @@ habitrpg.controller("TasksCtrl", ['$scope', '$rootScope', '$location', 'User','N
      To-Dos
      ------------------------
      */
-    $scope._today = moment().add('days',1);
+    $scope._today = moment().add({days: 1});
 
     /*
      ------------------------
@@ -142,6 +142,11 @@ habitrpg.controller("TasksCtrl", ['$scope', '$rootScope', '$location', 'User','N
         $event.preventDefault();
       } 
     }
+    $scope.swapChecklistItems = function(task, oldIndex, newIndex) {
+      var toSwap = task.checklist.splice(oldIndex, 1)[0];
+      task.checklist.splice(newIndex, 0, toSwap);
+      $scope.saveTask(task, true);
+    }
     $scope.navigateChecklist = function(task,$index,$event){
       focusChecklist(task, $event.keyCode == '40' ? $index+1 : $index-1);
     }
@@ -184,5 +189,27 @@ habitrpg.controller("TasksCtrl", ['$scope', '$rootScope', '$location', 'User','N
     $scope.initAds = function(){
       $.getScript('//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js');
       (window.adsbygoogle = window.adsbygoogle || []).push({});
+    }
+
+    /*
+     ------------------------
+     Hiding Tasks
+     ------------------------
+     */
+
+    $scope.shouldShow = function(task, list, prefs){
+      if (task._editing) // never hide a task while being edited
+        return true;
+      if (task.type == 'habit' || task.type == 'todo' || task.type == 'reward')
+        return true;
+      var shouldDo = task.type == 'daily' ? habitrpgShared.shouldDo(new Date, task.repeat, prefs) : true;
+      switch (list.view) {
+      case "remaining":
+        return !task.completed && shouldDo;
+      case "complete":
+        return task.completed || !shouldDo;
+      case "all":
+        return true;
+      }
     }
   }]);

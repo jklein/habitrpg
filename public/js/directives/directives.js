@@ -61,6 +61,12 @@ habitrpg
       link: function(scope, element, attrs) {
         // $scope.obj needs to come from controllers, so we can pass by ref
         scope.main = attrs.main;
+        var dailiesView;
+        if(User.user.preferences.dailyDueDefaultView) {
+          dailiesView = "remaining";
+        } else {
+          dailiesView = "all";
+        }
         $rootScope.lists = [
           {
             header: window.env.t('habits'),
@@ -69,11 +75,13 @@ habitrpg
           }, {
             header: window.env.t('dailies'),
             type: 'daily',
-            placeHolder: window.env.t('newDaily')
+            placeHolder: window.env.t('newDaily'),
+            view: dailiesView
           }, {
             header: window.env.t('todos'),
             type: 'todo',
             placeHolder: window.env.t('newTodo')
+            // view: "remaining"
           }, {
             header: window.env.t('rewards'),
             type: 'reward',
@@ -111,6 +119,24 @@ habitrpg.directive('hrpgSortTasks', ['User', function(User) {
         var task = angular.element(ui.item[0]).scope().task,
           startIndex = ui.item.data('startIndex');
         User.user.ops.sortTask({ params: {id: task.id}, query: {from: startIndex, to: ui.item.index()} });
+      }
+    });
+  }
+}]);
+
+habitrpg.directive('hrpgSortChecklist', ['User', function(User) {
+  return function($scope, element, attrs, ngModel) {
+    $(element).sortable({
+      axis: "y",
+      distance: 5,
+      start: function (event, ui) {
+        ui.item.data('startIndex', ui.item.index());
+      },
+      stop: function (event, ui) {
+        var task = angular.element(ui.item[0]).scope().task,
+          startIndex = ui.item.data('startIndex');
+        //$scope.saveTask(task, true);
+		$scope.swapChecklistItems(task, startIndex, ui.item.index());
       }
     });
   }
